@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tableau de bord</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/custom.css" rel="stylesheet">
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-shield-alt me-2"></i>Spring Security JPA
+        </a>
+        <div class="navbar-nav ms-auto">
+            <span class="navbar-text text-light me-3">
+                <i class="fas fa-user-circle me-1"></i>
+                <strong th:text="${username}"></strong>
+            </span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-light btn-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i>Déconnexion
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="/dashboard" class="list-group-item list-group-item-action active">
+                    <i class="fas fa-tachometer-alt me-2"></i>Tableau de bord
+                </a>
+                <a href="/user/profile" class="list-group-item list-group-item-action">
+                    <i class="fas fa-user me-2"></i>Profil Utilisateur
+                </a>
+                <a th:if="${isAdmin}" href="/admin/manage" class="list-group-item list-group-item-action">
+                    <i class="fas fa-cogs me-2"></i>Administration
+                </a>
+                <a href="/access-denied" class="list-group-item list-group-item-action">
+                    <i class="fas fa-ban me-2"></i>Test Accès Refusé
+                </a>
+            </div>
+
+            <!-- Carte d'information utilisateur -->
+            <div class="card mt-4">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h6>
+                </div>
+                <div class="card-body">
+                    <small class="text-muted">
+                        <i class="fas fa-clock me-1"></i>Session active
+                    </small>
+                    <div class="mt-2">
+                        <span th:each="role : ${roles}" class="badge role-badge me-1" th:text="${role}"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <!-- En-tête de bienvenue -->
+            <div class="card mb-4">
+                <div class="card-header text-white">
+                    <h4 class="mb-0"><i class="fas fa-tachometer-alt me-2"></i>Tableau de bord</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h3 class="text-primary">Bienvenue, <span th:text="${username}" class="fw-bold"></span> !</h3>
+                            <p class="text-muted mb-0">Vous êtes connecté avec succès au système Spring Security JPA.</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="bg-primary text-white rounded p-3">
+                                <i class="fas fa-user-shield fa-2x mb-2"></i>
+                                <h5 class="mb-0" th:text="${#lists.size(roles)}"></h5>
+                                <small>Rôle(s)</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cartes de fonctionnalités -->
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="card border-0 bg-primary text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user fa-3x mb-3 opacity-75"></i>
+                            <h5>Profil Utilisateur</h5>
+                            <p class="opacity-75">Consultez et modifiez vos informations personnelles</p>
+                            <a href="/user/profile" class="btn btn-light btn-sm mt-2">
+                                <i class="fas fa-arrow-right me-1"></i>Accéder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div th:if="${isAdmin}" class="col-md-4 mb-4">
+                    <div class="card border-0 bg-warning text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cogs fa-3x mb-3 opacity-75"></i>
+                            <h5>Administration</h5>
+                            <p class="opacity-75">Panel de gestion administrateur du système</p>
+                            <a href="/admin/manage" class="btn btn-light btn-sm mt-2">
+                                <i class="fas fa-arrow-right me-1"></i>Accéder
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-4">
+                    <div class="card border-0 bg-success text-white h-100">
+                        <div class="card-body text-center">
+                            <i class="fas fa-shield-alt fa-3x mb-3 opacity-75"></i>
+                            <h5>Sécurité</h5>
+                            <p class="opacity-75">Informations sur votre session sécurisée</p>
+                            <a href="#" class="btn btn-light btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#securityModal">
+                                <i class="fas fa-info-circle me-1"></i>Détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section informations d'accès -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-map-signs me-2"></i>Guide d'accès</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-check-circle text-success me-2"></i>Pages accessibles :</h6>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-angle-right text-primary me-2"></i><strong>/user/profile</strong> - Tous les utilisateurs</li>
+                                        <li th:if="${isAdmin}">
+                                            <i class="fas fa-angle-right text-warning me-2"></i><strong>/admin/manage</strong> - Administrateurs uniquement
+                                        </li>
+                                    </ul>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6><i class="fas fa-user-tag me-2 text-info"></i>Vos rôles :</h6>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <span th:each="role : ${roles}" class="badge role-badge" th:text="${role}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section statistiques -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques de session</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-user-clock fa-2x text-primary mb-2"></i>
+                                        <h4 class="text-primary">1</h4>
+                                        <small class="text-muted">Session active</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-users fa-2x text-success mb-2"></i>
+                                        <h4 class="text-success" th:text="${isAdmin ? '2' : '1'}"></h4>
+                                        <small class="text-muted">Utilisateurs total</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-shield-alt fa-2x text-warning mb-2"></i>
+                                        <h4 class="text-warning" th:text="${#lists.size(roles)}"></h4>
+                                        <small class="text-muted">Rôles attribués</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="border rounded p-3">
+                                        <i class="fas fa-check-circle fa-2x text-info mb-2"></i>
+                                        <h4 class="text-info" th:text="${isAdmin ? '3' : '2'}"></h4>
+                                        <small class="text-muted">Pages accessibles</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Sécurité -->
+<div class="modal fade" id="securityModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title"><i class="fas fa-shield-alt me-2"></i>Informations de sécurité</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>Session sécurisée</h6>
+                    <p class="mb-2">Votre connexion est protégée par :</p>
+                    <ul class="mb-0">
+                        <li>Spring Security 6.x</li>
+                        <li>Authentification JPA</li>
+                        <li>Encodage BCrypt</li>
+                        <li>Protection CSRF</li>
+                    </ul>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <strong>Utilisateur :</strong><br>
+                        <span th:text="${username}" class="text-primary"></span>
+                    </div>
+                    <div class="col-6">
+                        <strong>Rôles :</strong><br>
+                        <span th:text="${roles}" class="text-success"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Animation simple pour les cartes
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+    });
+</script>
+</body>
+</html>
